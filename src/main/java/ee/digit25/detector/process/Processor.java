@@ -1,5 +1,7 @@
 package ee.digit25.detector.process;
 
+import ee.digit25.detector.domain.account.external.AccountRequester;
+import ee.digit25.detector.domain.device.external.DeviceRequester;
 import ee.digit25.detector.domain.person.external.PersonRequester;
 import ee.digit25.detector.domain.transaction.TransactionValidator;
 import ee.digit25.detector.domain.transaction.common.TransactionMapper;
@@ -20,16 +22,19 @@ import java.util.concurrent.ForkJoinPool;
 @RequiredArgsConstructor
 public class Processor {
 
-    private static final int POOL_SIZE = 4;
-    private static final int TRANSACTION_BATCH_SIZE = 10;
+    private static final int POOL_SIZE = 20;
+    private static final int TRANSACTION_BATCH_SIZE = 100;
     private final TransactionRequester requester;
     private final TransactionValidator validator;
     private final TransactionVerifier verifier;
     private final PersistTransactionFeature persistTransactionFeature;
     private final TransactionMapper transactionMapper;
     private final PersonRequester personRequester;
+    private final AccountRequester accountRequester;
+    private final DeviceRequester deviceRequester;
 
     private final ForkJoinPool customPool = new ForkJoinPool(POOL_SIZE);
+
 
     @Scheduled(fixedDelay = 1000) //Runs every 1000 ms after the last run
     public void process() {

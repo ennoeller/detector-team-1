@@ -21,6 +21,6 @@ public class DeviceValidator {
     public boolean isBlacklisted(String mac) {
         log.info("Starting to check if device is blacklisted");
 
-        return requester.get(mac).getIsBlacklisted();
+        return requester.getBlacklistedDevices().get(mac);
     }
 }

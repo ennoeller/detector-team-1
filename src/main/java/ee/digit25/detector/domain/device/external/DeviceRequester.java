@@ -4,11 +4,15 @@ import ee.bitweb.core.retrofit.RetrofitRequestExecutor;
 import ee.digit25.detector.domain.device.external.api.DeviceModel;
 import ee.digit25.detector.domain.device.external.api.DeviceApi;
 import ee.digit25.detector.domain.device.external.api.DeviceApiProperties;
+import ee.digit25.detector.domain.person.external.api.PersonModel;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Slf4j
 @Service
@@ -34,5 +38,23 @@ public class DeviceRequester {
         log.info("Requesting persons page {} of size {}", pageNumber, pageSize);
 
         return RetrofitRequestExecutor.executeRaw(api.get(properties.getToken(), pageNumber, pageSize));
+    }
+
+    @Cacheable(value = "devices", sync = true)
+    public Map<String, Boolean> getBlacklistedDevices() {
+        Map<String, Boolean> deviceModels = new HashMap<>();
+        boolean hasData = true;
+        int pageNumber = 0;
+        while (hasData) {
+            List<DeviceModel> devices = get(pageNumber, 1000);
+            hasData = !devices.isEmpty();
+            pageNumber++;
+            devices.forEach((deviceModel ->
+                    deviceModels.put(deviceModel.getMac(), deviceModel.getIsBlacklisted()))
+            );
+        }
+
+        return deviceModels;
+
     }
 }
