@@ -22,20 +22,20 @@ public class PersonRequester {
     private final PersonApiProperties properties;
 
     public PersonModel get(String personCode) {
-        log.info("Requesting person with personCode {}", personCode);
+        log.debug("Requesting person with personCode {}", personCode);
 
         return RetrofitRequestExecutor.executeRaw(api.get(properties.getToken(), personCode));
     }
 
     public List<PersonModel> get(List<String> personCodes) {
-        log.info("Requesting persons with personCodes {}", personCodes);
+        log.debug("Requesting persons with personCodes {}", personCodes);
 
         return RetrofitRequestExecutor.executeRaw(api.get(properties.getToken(), personCodes));
     }
 
 
     public List<PersonModel> get(int pageNumber, int pageSize) {
-        log.info("Requesting persons page {} of size {}", pageNumber, pageSize);
+        log.debug("Requesting persons page {} of size {}", pageNumber, pageSize);
 
         return RetrofitRequestExecutor.executeRaw(api.get(properties.getToken(), pageNumber, pageSize));
     }

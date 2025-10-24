@@ -16,7 +16,7 @@ public class PersonApiConfig {
 
     @Bean
     public PersonApi personApi() {
-        log.info("Creating Persons API");
+        log.debug("Creating Persons API");
 
         return builder.create(properties.getBaseUrl(), PersonApi.class).build();
     }

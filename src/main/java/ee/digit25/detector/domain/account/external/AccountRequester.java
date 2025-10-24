@@ -23,19 +23,19 @@ public class AccountRequester {
     private final AccountApiProperties properties;
 
     public AccountModel get(String accountNumber) {
-        log.info("Requesting account {}", accountNumber);
+        log.debug("Requesting account {}", accountNumber);
 
         return RetrofitRequestExecutor.executeRaw(api.get(properties.getToken(), accountNumber));
     }
 
     public List<AccountModel> get(List<String> numbers) {
-        log.info("Requesting accounts with numbers {}", numbers);
+        log.debug("Requesting accounts with numbers {}", numbers);
 
         return RetrofitRequestExecutor.executeRaw(api.get(properties.getToken(), numbers));
     }
 
     public List<AccountModel> get(int pageNumber, int pageSize) {
-        log.info("Requesting accounts page {} of size {}", pageNumber, pageSize);
+        log.debug("Requesting accounts page {} of size {}", pageNumber, pageSize);
 
         return RetrofitRequestExecutor.executeRaw(api.get(properties.getToken(), pageNumber, pageSize));
     }

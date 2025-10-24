@@ -14,7 +14,7 @@ public class PersistTransactionFeature {
     private final TransactionRepository repository;
 
     public Transaction save(Transaction transaction) {
-        log.info("Saving transaction: {}", transaction);
+        log.debug("Saving transaction: {}", transaction);
 
         return repository.save(transaction);
     }

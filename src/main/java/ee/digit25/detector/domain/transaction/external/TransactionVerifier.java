@@ -19,27 +19,27 @@ public class TransactionVerifier {
     private final TransactionApiProperties properties;
 
     public void verify(TransactionModel transaction) {
-        log.info("Verifying transaction {}", transaction.getId());
+        log.debug("Verifying transaction {}", transaction.getId());
 
         RetrofitRequestExecutor.executeRaw(api.verify(properties.getToken(), transaction.getId()));
     }
 
     public void reject(TransactionModel transaction) {
-        log.info("Rejecting transaction {}", transaction.getId());
+        log.debug("Rejecting transaction {}", transaction.getId());
 
         RetrofitRequestExecutor.executeRaw(api.reject(properties.getToken(), transaction.getId()));
     }
 
     public void verify(List<TransactionModel> transactions) {
         List<String> ids = transactions.stream().map(TransactionModel::getId).toList();
-        log.info("Verifying transactions {}", ids);
+        log.debug("Verifying transactions {}", ids);
 
         RetrofitRequestExecutor.executeRaw(api.verify(properties.getToken(), ids));
     }
 
     public void reject(List<TransactionModel> transactions) {
         List<String> ids = transactions.stream().map(TransactionModel::getId).toList();
-        log.info("Rejecting transactions {}", ids);
+        log.debug("Rejecting transactions {}", ids);
 
         RetrofitRequestExecutor.executeRaw(api.reject(properties.getToken(), ids));
     }

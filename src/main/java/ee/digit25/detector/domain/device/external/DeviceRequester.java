@@ -23,19 +23,19 @@ public class DeviceRequester {
     private final DeviceApiProperties properties;
 
     public DeviceModel get(String mac) {
-        log.info("Requesting device with mac({})", mac);
+        log.debug("Requesting device with mac({})", mac);
 
         return RetrofitRequestExecutor.executeRaw(api.get(properties.getToken(), mac));
     }
 
     public List<DeviceModel> get(List<String> macs) {
-        log.info("Requesting devices with macs {}", macs);
+        log.debug("Requesting devices with macs {}", macs);
 
         return RetrofitRequestExecutor.executeRaw(api.get(properties.getToken(), macs));
     }
 
     public List<DeviceModel> get(int pageNumber, int pageSize) {
-        log.info("Requesting persons page {} of size {}", pageNumber, pageSize);
+        log.debug("Requesting persons page {} of size {}", pageNumber, pageSize);
 
         return RetrofitRequestExecutor.executeRaw(api.get(properties.getToken(), pageNumber, pageSize));
     }

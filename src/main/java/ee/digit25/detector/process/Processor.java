@@ -6,6 +6,8 @@ import ee.digit25.detector.domain.transaction.external.TransactionRequester;
 import ee.digit25.detector.domain.transaction.external.TransactionVerifier;
 import ee.digit25.detector.domain.transaction.external.api.TransactionModel;
 import ee.digit25.detector.domain.transaction.feature.PersistTransactionFeature;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -46,7 +48,7 @@ public class Processor {
     private final AtomicBoolean pulling = new AtomicBoolean(false);
 
     public void startProcessing() {
-        log.info("Starting dynamic processing loop...");
+        log.debug("Starting dynamic processing loop...");
         pullAndProcessBatch();
     }
 
@@ -55,14 +57,18 @@ public class Processor {
         if (!pulling.compareAndSet(false, true)) return;
 
         List<TransactionModel> transactions = requester.getUnverified(TRANSACTION_BATCH_SIZE);
-        log.info("Pulled {} transactions", transactions.size());
+        log.error("Pulled {} transactions", transactions.size());
 
         for (TransactionModel tx : transactions) {
             activeTasks.incrementAndGet();
 
             customPool.submit(() -> {
                 try {
-                    process(tx);
+                    var start = System.currentTimeMillis();
+                    var result = process(tx);
+
+                    log.warn("Time: {}ms. Validating: {}ms. Valid: {}",
+                            System.currentTimeMillis() - start, result.getAfterValidator() - result.getStart(), result.isValid());
                 } catch (Exception e) {
                     log.error("Error processing tx {}", tx.getId(), e);
                 } finally {
@@ -70,7 +76,7 @@ public class Processor {
 
                     // when nearly done, pull next batch
                     if (remaining < TRIGGER_THRESHOLD && !pulling.get()) {
-                        log.info("Active tasks below threshold ({}), triggering next batch...", remaining);
+                        log.error("Active tasks below threshold ({}), triggering next batch...", remaining);
                         pullAndProcessBatch();
                     }
                 }
@@ -80,15 +86,18 @@ public class Processor {
         pulling.set(false);
     }
 
-    private void process(TransactionModel transaction) {
+    private Result process(TransactionModel transaction) {
+        var start = System.currentTimeMillis();
+
         boolean valid = validator.isLegitimate(transaction);
         if (valid) {
-            log.info("Legitimate transaction {}", transaction.getId());
+            log.debug("Legitimate transaction {}", transaction.getId());
             verifier.verify(transaction);
         } else {
-            log.info("Not legitimate transaction {}", transaction.getId());
+            log.debug("Not legitimate transaction {}", transaction.getId());
             verifier.reject(transaction);
         }
+        var afterValidator = System.currentTimeMillis();
 
         persistTransactionFeature.save(
                 transactionMapper.toEntity(
@@ -96,5 +105,15 @@ public class Processor {
                         valid
                 )
         );
+
+        return new Result(valid, start, afterValidator);
+    }
+
+    @Getter
+    @AllArgsConstructor
+    public static class Result {
+        private boolean valid;
+        private long start;
+        private long afterValidator;
     }
 }
