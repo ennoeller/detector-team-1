@@ -19,6 +19,6 @@ public class TransactionSpecification {
     }
 
     public static Specification<Transaction> sender(String code) {
-        return (root, query, builder) -> builder.equal(root.get(Transaction_.SENDER), code);
+        return (root, query, builder) -> builder.equal(root.join(Transaction_.sender).get(Person_.personCode), code);
     }
 }
