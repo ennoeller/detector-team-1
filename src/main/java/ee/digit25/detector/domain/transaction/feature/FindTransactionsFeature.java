@@ -8,6 +8,8 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 
+import static ee.digit25.detector.domain.transaction.common.TransactionSpecification.sender;
+
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -18,9 +20,6 @@ public class FindTransactionsFeature {
     public List<Transaction> bySender(String sender) {
         log.debug("Fetching transaction history by sender: {}", sender);
 
-        return repository.findAll()
-                .stream()
-                .filter(t -> sender.equals(t.getSender().getPersonCode()))
-                .toList();
+        return repository.findAll(sender(sender));
     }
 }
