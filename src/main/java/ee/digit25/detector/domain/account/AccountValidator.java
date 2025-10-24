@@ -16,7 +16,7 @@ public class AccountValidator {
     private final AccountRequester requester;
 
     public boolean isValidSenderAccount(String accountNumber, BigDecimal amount, String senderPersonCode) {
-        log.info("Checking if account {} is valid sender account", accountNumber);
+        log.debug("Checking if account {} is valid sender account", accountNumber);
         boolean isValid = true;
 
         AccountModel account = getAccount(accountNumber);
@@ -28,7 +28,7 @@ public class AccountValidator {
     }
 
     public boolean isValidRecipientAccount(String accountNumber, String recipientPersonCode) {
-        log.info("Checking if account {} is valid recipient account", accountNumber);
+        log.debug("Checking if account {} is valid recipient account", accountNumber);
         boolean isValid = true;
         AccountModel account = getAccount(accountNumber);
 

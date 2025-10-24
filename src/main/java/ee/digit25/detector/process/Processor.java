@@ -29,14 +29,9 @@ public class Processor {
     private final TransactionVerifier verifier;
     private final PersistTransactionFeature persistTransactionFeature;
     private final TransactionMapper transactionMapper;
-    private final PersonRequester personRequester;
-    private final AccountRequester accountRequester;
-    private final DeviceRequester deviceRequester;
 
     private final ForkJoinPool customPool = new ForkJoinPool(POOL_SIZE);
 
-
-    @Scheduled(fixedDelay = 1000) //Runs every 1000 ms after the last run
     public void process() {
         log.info("Starting to process a batch of transactions of size {}", TRANSACTION_BATCH_SIZE);
 
