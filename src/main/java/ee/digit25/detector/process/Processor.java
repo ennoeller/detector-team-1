@@ -1,5 +1,6 @@
 package ee.digit25.detector.process;
 
+import ee.digit25.detector.domain.person.external.PersonRequester;
 import ee.digit25.detector.domain.transaction.TransactionValidator;
 import ee.digit25.detector.domain.transaction.common.TransactionMapper;
 import ee.digit25.detector.domain.transaction.external.TransactionRequester;
@@ -24,6 +25,7 @@ public class Processor {
     private final TransactionVerifier verifier;
     private final PersistTransactionFeature persistTransactionFeature;
     private final TransactionMapper transactionMapper;
+    private final PersonRequester personRequester;
 
 
     @Scheduled(fixedDelay = 1000) //Runs every 1000 ms after the last run

@@ -14,6 +14,7 @@ public class GetOrCreatePersonFeature {
 
     private final PersonRepository repository;
 
+
     public Person byPersonCode(String personCode) {
 
         return repository.findOne(personCodeEquals(personCode))
