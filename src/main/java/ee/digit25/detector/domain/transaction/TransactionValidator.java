@@ -31,6 +31,7 @@ public class TransactionValidator {
 
     @PostConstruct
     void setup() {
+
         validators = List.of(
                 t -> personValidator.isValid(t.getRecipient()),
                 t -> personValidator.isValid(t.getSender()),
@@ -47,15 +48,23 @@ public class TransactionValidator {
     }
 
     public boolean isLegitimate(TransactionModel transaction) {
+        var start = System.currentTimeMillis();
+
         for (Predicate<TransactionModel> validator : validators) {
             if (!validator.test(transaction)) return false;
         }
 
+        log.info("After first batch of validators: {}ms", System.currentTimeMillis() - start);
+
         List<Transaction> transactionsBySender = findTransactionsFeature.bySender(transaction.getSender());
+
+        log.info("After get transactions. {}ms", System.currentTimeMillis() - start);
 
         for (Predicate<List<Transaction>> validator : senderTransactionValidators) {
             if (!validator.test(transactionsBySender)) return false;
         }
+
+        log.info("After second batch of validators: {}ms", System.currentTimeMillis() - start);
 
         return true;
     }

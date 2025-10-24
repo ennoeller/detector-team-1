@@ -1,0 +1,1 @@
+CREATE INDEX idx_transaction_sender_id ON transaction (sender_id);

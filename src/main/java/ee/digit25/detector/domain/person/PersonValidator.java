@@ -46,7 +46,5 @@ public class PersonValidator {
             return false;
         }
         return !isBlacklisted(person);
-
     }
-
 }
