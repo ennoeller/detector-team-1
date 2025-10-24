@@ -24,10 +24,10 @@ import java.util.concurrent.atomic.AtomicInteger;
 @RequiredArgsConstructor
 public class Processor {
 
-    private static final int TRANSACTION_BATCH_SIZE = 100;
-    private static final int THREAD_POOL_SIZE = 8;
+    private static final int TRANSACTION_BATCH_SIZE = 200;
+    private static final int THREAD_POOL_SIZE = 20;
     private static final int QUEUE_CAPACITY = 500;
-    private static final int TRIGGER_THRESHOLD = 50;
+    private static final int TRIGGER_THRESHOLD = THREAD_POOL_SIZE * 2 + 1;
 
     private final TransactionRequester requester;
     private final TransactionValidator validator;
