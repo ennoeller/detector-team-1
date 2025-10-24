@@ -13,13 +13,15 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.concurrent.ForkJoinPool;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
 public class Processor {
 
-    private final int TRANSACTION_BATCH_SIZE = 10;
+    private static final int POOL_SIZE = 4;
+    private static final int TRANSACTION_BATCH_SIZE = 10;
     private final TransactionRequester requester;
     private final TransactionValidator validator;
     private final TransactionVerifier verifier;
@@ -27,6 +29,7 @@ public class Processor {
     private final TransactionMapper transactionMapper;
     private final PersonRequester personRequester;
 
+    private final ForkJoinPool customPool = new ForkJoinPool(POOL_SIZE);
 
     @Scheduled(fixedDelay = 1000) //Runs every 1000 ms after the last run
     public void process() {
@@ -34,9 +37,10 @@ public class Processor {
 
         List<TransactionModel> transactions = requester.getUnverified(TRANSACTION_BATCH_SIZE);
 
-        for (TransactionModel transaction : transactions) {
-            process(transaction);
-        }
+        customPool.submit(() ->
+                transactions.parallelStream()
+                        .forEach(this::process)
+        );
 
         log.info("Finished processing a batch of transactions of size {}", TRANSACTION_BATCH_SIZE);
     }

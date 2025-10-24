@@ -20,13 +20,14 @@ public class TransactionMapper {
 
         transaction.setLegitimate(legitimate);
         transaction.setAmount(model.getAmount());
+        transaction.setTimestamp(model.getTimestamp());
+        transaction.setDeadline(model.getDeadline());
+
         transaction.setSender(getOrCreatePersonFeature.byPersonCode(model.getSender()));
         transaction.setSenderAccount(getOrCreateAccountFeature.byNumber(model.getSenderAccount()));
         transaction.setRecipient(getOrCreatePersonFeature.byPersonCode(model.getRecipient()));
         transaction.setRecipientAccount(getOrCreateAccountFeature.byNumber(model.getRecipientAccount()));
         transaction.setDevice(getOrCreateDeviceFeature.byMac(model.getDeviceMac()));
-        transaction.setTimestamp(model.getTimestamp());
-        transaction.setDeadline(model.getDeadline());
 
         return transaction;
     }
