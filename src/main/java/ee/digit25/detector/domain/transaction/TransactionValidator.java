@@ -13,7 +13,6 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.function.Predicate;
-import java.util.List;
 
 @Slf4j
 @Service
@@ -30,7 +29,10 @@ public class TransactionValidator {
             t -> personValidator.isValid(t.getSender()),
             t -> deviceValidator.isValid(t.getDeviceMac()),
             t -> accountValidator.isValidSenderAccount(t.getSenderAccount(), t.getAmount(), t.getSender()),
-            t -> accountValidator.isValidRecipientAccount(t.getRecipientAccount(), t.getRecipient()),
+            t -> accountValidator.isValidRecipientAccount(t.getRecipientAccount(), t.getRecipient())
+    );
+
+    private final List<Predicate<List<Transaction>>> senderTransactionValidators = List.of(
             t -> validateNoBurstTransaction(t),
             t -> validateNoMultideviceTransactions(t),
             t -> validateValidHistory(t)
@@ -39,6 +41,12 @@ public class TransactionValidator {
     public boolean isLegitimate(TransactionModel transaction) {
         for (Predicate<TransactionModel> validator : validators) {
             if (!validator.test(transaction)) return false;
+        }
+
+        List<Transaction> transactionsBySender = findTransactionsFeature.bySender(transaction.getSender());
+
+        for (Predicate<List<Transaction>> validator : senderTransactionValidators) {
+            if (!validator.test(transactionsBySender)) return false;
         }
 
         return true;
