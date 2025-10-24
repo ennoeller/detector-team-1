@@ -18,7 +18,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class Processor {
 
-    private final int TRANSACTION_BATCH_SIZE = 10;
+    private static final int TRANSACTION_BATCH_SIZE = 100;
     private final TransactionRequester requester;
     private final TransactionValidator validator;
     private final TransactionVerifier verifier;
