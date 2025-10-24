@@ -11,6 +11,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.function.Predicate;
 
 @Slf4j
 @Service
@@ -22,19 +24,23 @@ public class TransactionValidator {
     private final AccountValidator accountValidator;
     private final FindTransactionsFeature findTransactionsFeature;
 
+    private final List<Predicate<TransactionModel>> validators = List.of(
+            t -> personValidator.isValid(t.getRecipient()),
+            t -> personValidator.isValid(t.getSender()),
+            t -> deviceValidator.isValid(t.getDeviceMac()),
+            t -> accountValidator.isValidSenderAccount(t.getSenderAccount(), t.getAmount(), t.getSender()),
+            t -> accountValidator.isValidRecipientAccount(t.getRecipientAccount(), t.getRecipient()),
+            t -> validateNoBurstTransaction(t),
+            t -> validateNoMultideviceTransactions(t),
+            t -> validateValidHistory(t)
+    );
+
     public boolean isLegitimate(TransactionModel transaction) {
-        boolean isLegitimate = true;
+        for (Predicate<TransactionModel> validator : validators) {
+            if (!validator.test(transaction)) return false;
+        }
 
-        isLegitimate &= personValidator.isValid(transaction.getRecipient());
-        isLegitimate &= personValidator.isValid(transaction.getSender());
-        isLegitimate &= deviceValidator.isValid(transaction.getDeviceMac());
-        isLegitimate &= accountValidator.isValidSenderAccount(transaction.getSenderAccount(), transaction.getAmount(), transaction.getSender());
-        isLegitimate &= accountValidator.isValidRecipientAccount(transaction.getRecipientAccount(), transaction.getRecipient());
-        isLegitimate &= validateNoBurstTransaction(transaction);
-        isLegitimate &= validateNoMultideviceTransactions(transaction);
-        isLegitimate &= validateValidHistory(transaction);
-
-        return isLegitimate;
+        return true;
     }
 
     private boolean validateNoBurstTransaction(TransactionModel transaction) {
