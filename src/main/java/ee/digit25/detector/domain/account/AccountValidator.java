@@ -2,6 +2,7 @@ package ee.digit25.detector.domain.account;
 
 import ee.digit25.detector.domain.account.external.AccountRequester;
 import ee.digit25.detector.domain.account.external.api.AccountModel;
+import ee.digit25.detector.domain.account.external.api.AccountModel;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -20,11 +21,12 @@ public class AccountValidator {
         boolean isValid = true;
 
         AccountModel account = getAccount(accountNumber);
-        isValid &= !isClosed(account);
-        isValid &= isOwner(account, senderPersonCode);
-        isValid &= hasBalance(account, amount);
-
-        return isValid;
+        if(isClosed(account)) {
+            return false;
+        }
+        if(!isOwner(account, senderPersonCode))
+            return false;
+        return hasBalance(account, amount);
     }
 
     public boolean isValidRecipientAccount(String accountNumber, String recipientPersonCode) {
@@ -32,10 +34,10 @@ public class AccountValidator {
         boolean isValid = true;
         AccountModel account = getAccount(accountNumber);
 
-        isValid &= !isClosed(account);
-        isValid &= isOwner(account, recipientPersonCode);
-
-        return isValid;
+        if(isClosed(account)) {
+            return false;
+        }
+        return isOwner(account, recipientPersonCode);
     }
 
     private AccountModel getAccount(String accountNumber) {

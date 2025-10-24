@@ -39,8 +39,14 @@ public class PersonValidator {
 
     public boolean isValid(String personCode) {
         PersonModel person = getPerson(personCode);
+        if(hasWarrantIssued(person)) {
+            return false;
+        }
+        if(!hasContract(person)) {
+            return false;
+        }
+        return !isBlacklisted(person);
 
-        return !hasWarrantIssued(person) && hasContract(person) && !isBlacklisted(person);
     }
 
 }

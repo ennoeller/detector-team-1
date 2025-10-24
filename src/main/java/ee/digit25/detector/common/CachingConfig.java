@@ -15,7 +15,10 @@ public class CachingConfig {
         return new ConcurrentMapCacheManager(
                 "persons",
                 "accounts",
-                "devices"
+                "devices",
+                "personCode",
+                "accountNumber",
+                "mac"
         );
     }
 }

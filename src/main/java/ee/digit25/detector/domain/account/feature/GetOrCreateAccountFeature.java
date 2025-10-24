@@ -3,6 +3,7 @@ package ee.digit25.detector.domain.account.feature;
 import ee.digit25.detector.domain.account.common.Account;
 import ee.digit25.detector.domain.account.common.AccountRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
@@ -14,6 +15,7 @@ public class GetOrCreateAccountFeature {
 
     private final AccountRepository repository;
 
+    @Cacheable(value = "accountNumber", key = "#number")
     public Account byNumber(String number) {
 
         return repository.findOne(numberEquals(number))
