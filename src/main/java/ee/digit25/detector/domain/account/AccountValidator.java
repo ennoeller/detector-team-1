@@ -45,19 +45,19 @@ public class AccountValidator {
     }
 
     private boolean isOwner(AccountModel account, String senderPersonCode) {
-        log.info("Checking if {} is owner of account {}", senderPersonCode, account.getNumber());
+        log.debug("Checking if {} is owner of account {}", senderPersonCode, account.getNumber());
 
         return senderPersonCode.equals(account.getOwner());
     }
 
     private boolean hasBalance(AccountModel account, BigDecimal amount) {
-        log.info("Checking if account {} has balance for amount {}", account.getNumber(), amount);
+        log.debug("Checking if account {} has balance for amount {}", account.getNumber(), amount);
 
         return account.getBalance().compareTo(amount) >= 0;
     }
 
     private boolean isClosed(AccountModel account) {
-        log.info("Checking if account {} is closed", account.getNumber());
+        log.debug("Checking if account {} is closed", account.getNumber());
 
         return account.getClosed();
     }
