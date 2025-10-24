@@ -40,9 +40,9 @@ public class TransactionValidator {
         );
 
         senderTransactionValidators = List.of(
-                t -> validateNoBurstTransaction(t),
-                t -> validateNoMultideviceTransactions(t),
-                t -> validateValidHistory(t)
+                this::validateNoBurstTransaction,
+                this::validateNoMultideviceTransactions,
+                this::validateValidHistory
         );
     }
 
