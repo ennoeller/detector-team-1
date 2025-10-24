@@ -6,6 +6,7 @@ import ee.digit25.detector.domain.person.PersonValidator;
 import ee.digit25.detector.domain.transaction.common.Transaction;
 import ee.digit25.detector.domain.transaction.external.api.TransactionModel;
 import ee.digit25.detector.domain.transaction.feature.FindTransactionsFeature;
+import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -24,19 +25,26 @@ public class TransactionValidator {
     private final AccountValidator accountValidator;
     private final FindTransactionsFeature findTransactionsFeature;
 
-    private final List<Predicate<TransactionModel>> validators = List.of(
-            t -> personValidator.isValid(t.getRecipient()),
-            t -> personValidator.isValid(t.getSender()),
-            t -> deviceValidator.isValid(t.getDeviceMac()),
-            t -> accountValidator.isValidSenderAccount(t.getSenderAccount(), t.getAmount(), t.getSender()),
-            t -> accountValidator.isValidRecipientAccount(t.getRecipientAccount(), t.getRecipient())
-    );
+    private List<Predicate<TransactionModel>> validators;
 
-    private final List<Predicate<List<Transaction>>> senderTransactionValidators = List.of(
-            t -> validateNoBurstTransaction(t),
-            t -> validateNoMultideviceTransactions(t),
-            t -> validateValidHistory(t)
-    );
+    private List<Predicate<List<Transaction>>> senderTransactionValidators;
+
+    @PostConstruct
+    void setup() {
+        validators = List.of(
+                t -> personValidator.isValid(t.getRecipient()),
+                t -> personValidator.isValid(t.getSender()),
+                t -> deviceValidator.isValid(t.getDeviceMac()),
+                t -> accountValidator.isValidSenderAccount(t.getSenderAccount(), t.getAmount(), t.getSender()),
+                t -> accountValidator.isValidRecipientAccount(t.getRecipientAccount(), t.getRecipient())
+        );
+
+        senderTransactionValidators = List.of(
+                t -> validateNoBurstTransaction(t),
+                t -> validateNoMultideviceTransactions(t),
+                t -> validateValidHistory(t)
+        );
+    }
 
     public boolean isLegitimate(TransactionModel transaction) {
         for (Predicate<TransactionModel> validator : validators) {
