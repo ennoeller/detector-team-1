@@ -5,8 +5,10 @@ import ee.digit25.detector.domain.person.common.PersonRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import static ee.digit25.detector.domain.person.common.PersonSpecification.personCodeEquals;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 @Service
 @RequiredArgsConstructor
@@ -14,17 +16,30 @@ public class GetOrCreatePersonFeature {
 
     private final PersonRepository repository;
 
+// TODO: kasuta ConcurrentHashMap, et teha thread-safe cache
+    private final Map<String, Person> cache = new ConcurrentHashMap<>();
+
     public Person byPersonCode(String personCode) {
 
-        return repository.findOne(personCodeEquals(personCode))
-                .orElseGet(() -> create(personCode));
+        // TODO: kasuta cache'i, et vältida korduvaid päringuid
+        return cache.computeIfAbsent(personCode, key ->
+            repository.findByPersonCode(key)
+                    .orElseGet(() -> create(key))
+        );
     }
 
+    @Transactional
     private Person create(String personCode) {
+        // TODO: käsitle unikaalsuse rikkumist, kui samaaegselt luuakse sama personCode'iga isik
         try {
-            return repository.save(new Person(personCode));
+            Person created = repository.save(new Person(personCode));
+            cache.put(personCode, created);
+            return created;
         } catch (DataIntegrityViolationException e) {
-            return repository.findOne(personCodeEquals(personCode)).orElseThrow(() -> e);
+            Person existing = repository.findByPersonCode(personCode)
+                    .orElseThrow(() -> e);
+            cache.put(personCode, existing);
+            return existing;
         }
     }
 }

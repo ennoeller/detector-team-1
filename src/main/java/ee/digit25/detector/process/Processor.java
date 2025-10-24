@@ -32,9 +32,8 @@ public class Processor {
 
         List<TransactionModel> transactions = requester.getUnverified(TRANSACTION_BATCH_SIZE);
 
-        for (TransactionModel transaction : transactions) {
-            process(transaction);
-        }
+        // TODO: Enable parallel processing after ensuring thread safety
+        transactions.parallelStream().forEach(this::process);
 
         log.info("Finished processing a batch of transactions of size {}", TRANSACTION_BATCH_SIZE);
     }

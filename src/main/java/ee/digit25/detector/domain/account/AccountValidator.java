@@ -1,11 +1,14 @@
 package ee.digit25.detector.domain.account;
 
 import ee.digit25.detector.domain.account.external.AccountRequester;
+import ee.digit25.detector.domain.account.external.api.AccountModel;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 @Slf4j
 @Service
@@ -13,14 +16,19 @@ import java.math.BigDecimal;
 public class AccountValidator {
 
     private final AccountRequester requester;
+    // TODO: Implement cache invalidation strategy
+    private final Map<String, AccountModel> cache = new ConcurrentHashMap<>();
 
     public boolean isValidSenderAccount(String accountNumber, BigDecimal amount, String senderPersonCode) {
         log.info("Checking if account {} is valid sender account", accountNumber);
         boolean isValid = true;
 
-        isValid &= !isClosed(accountNumber);
-        isValid &= isOwner(accountNumber, senderPersonCode);
-        isValid &= hasBalance(accountNumber, amount);
+        // TODO: Optimize to avoid multiple requests
+        AccountModel account = getAccount(accountNumber);
+
+        isValid &= !account.getClosed();
+        isValid &= senderPersonCode.equals(account.getOwner());
+        isValid &= account.getBalance().compareTo(amount) >= 0;
 
         return isValid;
     }
@@ -29,10 +37,18 @@ public class AccountValidator {
         log.info("Checking if account {} is valid recipient account", accountNumber);
         boolean isValid = true;
 
-        isValid &= !isClosed(accountNumber);
-        isValid &= isOwner(accountNumber, recipientPersonCode);
+        // TODO: Optimize to avoid multiple requests
+        AccountModel account = getAccount(accountNumber);
+
+        isValid &= !account.getClosed();
+        isValid &= recipientPersonCode.equals(account.getOwner());
 
         return isValid;
+    }
+
+    // TODO: Optimize to avoid multiple requests for the same account in a single processing batch
+    private AccountModel getAccount(String accountNumber) {
+        return cache.computeIfAbsent(accountNumber, requester::get);
     }
 
     private boolean isOwner(String accountNumber, String senderPersonCode) {
