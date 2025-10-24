@@ -15,7 +15,7 @@ public class AccountValidator {
     private final AccountRequester requester;
 
     public boolean isValidSenderAccount(String accountNumber, BigDecimal amount, String senderPersonCode) {
-        log.info("Checking if account {} is valid sender account", accountNumber);
+        log.debug("Checking if account {} is valid sender account", accountNumber);
         boolean isValid = true;
 
         isValid &= !isClosed(accountNumber);
@@ -26,7 +26,7 @@ public class AccountValidator {
     }
 
     public boolean isValidRecipientAccount(String accountNumber, String recipientPersonCode) {
-        log.info("Checking if account {} is valid recipient account", accountNumber);
+        log.debug("Checking if account {} is valid recipient account", accountNumber);
         boolean isValid = true;
 
         isValid &= !isClosed(accountNumber);
@@ -36,19 +36,19 @@ public class AccountValidator {
     }
 
     private boolean isOwner(String accountNumber, String senderPersonCode) {
-        log.info("Checking if {} is owner of account {}", senderPersonCode, accountNumber);
+        log.debug("Checking if {} is owner of account {}", senderPersonCode, accountNumber);
 
         return senderPersonCode.equals(requester.getAccounts().get(accountNumber).getOwner());
     }
 
     private boolean hasBalance(String accountNumber, BigDecimal amount) {
-        log.info("Checking if account {} has balance for amount {}", accountNumber, amount);
+        log.debug("Checking if account {} has balance for amount {}", accountNumber, amount);
 
         return requester.getAccounts().get(accountNumber).getBalance().compareTo(amount) >= 0;
     }
 
     private boolean isClosed(String accountNumber) {
-        log.info("Checking if account {} is closed", accountNumber);
+        log.debug("Checking if account {} is closed", accountNumber);
 
         return requester.getAccounts().get(accountNumber).getClosed();
     }

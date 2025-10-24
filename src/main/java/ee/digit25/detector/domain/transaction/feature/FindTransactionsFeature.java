@@ -16,7 +16,7 @@ public class FindTransactionsFeature {
     private final TransactionRepository repository;
 
     public List<Transaction> bySender(String sender) {
-        log.info("Fetching transaction history by sender: {}", sender);
+        log.debug("Fetching transaction history by sender: {}", sender);
 
         return repository.findAll()
                 .stream()

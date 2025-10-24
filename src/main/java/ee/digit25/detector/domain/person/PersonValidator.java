@@ -14,25 +14,25 @@ public class PersonValidator {
     private final PersonRequester requester;
 
     private PersonModel getPerson(String personCode) {
-        log.info("Fetching person ({}) with code", personCode);
+        log.debug("Fetching person ({}) with code", personCode);
 
         return requester.getPersons().get(personCode);
     }
 
     private boolean hasWarrantIssued(PersonModel person) {
-        log.info("Cheking if person ({}) has a warrant issued", person.getPersonCode());
+        log.debug("Cheking if person ({}) has a warrant issued", person.getPersonCode());
 
         return person.getWarrantIssued();
     }
 
     private boolean hasContract(PersonModel person) {
-        log.info("Cheking if person ({}) has a contract", person.getPersonCode());
+        log.debug("Cheking if person ({}) has a contract", person.getPersonCode());
 
         return person.getHasContract();
     }
 
     private boolean isBlacklisted(PersonModel person) {
-        log.info("Cheking if person ({}) is blacklisted", person.getPersonCode());
+        log.debug("Cheking if person ({}) is blacklisted", person.getPersonCode());
 
         return person.getBlacklisted();
     }
