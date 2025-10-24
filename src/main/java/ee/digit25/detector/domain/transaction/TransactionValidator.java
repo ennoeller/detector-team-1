@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.function.Predicate;
+import java.util.List;
 
 @Slf4j
 @Service
@@ -43,10 +44,10 @@ public class TransactionValidator {
         return true;
     }
 
-    private boolean validateNoBurstTransaction(TransactionModel transaction) {
+    private boolean validateNoBurstTransaction(List<Transaction> transactionsBySender) {
         LocalDateTime since = LocalDateTime.now().minusSeconds(30);
 
-        long transactionCountSince = findTransactionsFeature.bySender(transaction.getSender())
+        long transactionCountSince = transactionsBySender
                 .stream()
                 .filter(t -> t.getTimestamp().isAfter(since))
                 .count();
@@ -54,10 +55,10 @@ public class TransactionValidator {
         return countBelowThreshold(transactionCountSince, 10);
     }
 
-    private boolean validateNoMultideviceTransactions(TransactionModel transaction) {
+    private boolean validateNoMultideviceTransactions(List<Transaction> transaction) {
         LocalDateTime since = LocalDateTime.now().minusSeconds(10);
 
-        long differentDeviceCountSince = findTransactionsFeature.bySender(transaction.getSender())
+        long differentDeviceCountSince = transaction
                 .stream()
                 .filter(t -> t.getTimestamp().isAfter(since))
                 .map(t -> t.getDevice().getMac())
@@ -67,10 +68,10 @@ public class TransactionValidator {
         return countBelowThreshold(differentDeviceCountSince, 2);
     }
 
-    private boolean validateValidHistory(TransactionModel transaction) {
+    private boolean validateValidHistory(List<Transaction> transaction) {
         LocalDateTime since = LocalDateTime.now().minusMinutes(1);
 
-        return findTransactionsFeature.bySender(transaction.getSender())
+        return transaction
                 .stream()
                 .filter(t -> t.getTimestamp().isAfter(since))
                 .allMatch(Transaction::isLegitimate);
