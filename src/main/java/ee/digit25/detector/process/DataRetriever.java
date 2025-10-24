@@ -8,10 +8,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
-import java.util.concurrent.TimeUnit;
-
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
 
 @Slf4j
 @Component
@@ -23,17 +19,11 @@ public class DataRetriever {
     private final Processor processor;
 
     @EventListener(ApplicationReadyEvent.class)
-    public void retrieveData(){
+    public void retrieveData() {
         accountRequester.getAccounts();
         deviceRequester.getBlacklistedDevices();
         personRequester.getPersons();
 
-        ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
-
-        scheduler.scheduleWithFixedDelay(() -> {
-            log.info("Scheduled job running at " + java.time.LocalTime.now());
-
-            processor.process();
-        }, 0, 1, TimeUnit.SECONDS);
+        processor.startProcessing();
     }
 }
